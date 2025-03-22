@@ -39,6 +39,18 @@ class Employee(db.Model):
 
     # Отношение с таблицей departments
     department = db.relationship('Department', backref='employees')
+    
+# Модель Vacation
+class Vacation(db.Model):
+    __tablename__ = 'vacations'
+    vacation_id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.employee_id'), nullable=False)
+    start_date = db.Column(db.Date, nullable=False)  # Дата начала отпуска
+    end_date = db.Column(db.Date, nullable=False)  # Дата окончания отпуска
+    status = db.Column(db.Enum('Pending', 'Approved', 'Rejected'), default='Pending')  # Статус заявки
+
+    # Отношение с таблицей employees
+    employee = db.relationship('Employee', backref='vacations')
 
 # Схема для сериализации Employee
 class EmployeeSchema(SQLAlchemyAutoSchema):
@@ -50,6 +62,17 @@ class EmployeeSchema(SQLAlchemyAutoSchema):
 
 employee_schema = EmployeeSchema()
 employees_schema = EmployeeSchema(many=True)
+
+# Схема для сериализации Vacation
+class VacationSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Vacation
+        load_instance = True
+        sqla_session = db.session
+        include_fk = True  # Включает внешние ключи (например, employee_id)
+
+vacation_schema = VacationSchema()
+vacations_schema = VacationSchema(many=True)
 
 # Эндпоинты
 
@@ -128,6 +151,40 @@ def delete_employee(employee_id):
     except Exception as e:
         print("Error:", traceback.format_exc())  # Логирование ошибки
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/vacations', methods=['POST'])
+def create_vacation():
+    try:
+        data = request.get_json()
+
+        # Проверка наличия обязательных полей
+        if not data or not all(key in data for key in ('employee_id', 'start_date', 'end_date')):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Преобразование дат
+        data['start_date'] = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
+        data['end_date'] = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
+
+        # Создание новой заявки
+        new_vacation = Vacation(**data)
+        db.session.add(new_vacation)
+        db.session.commit()
+
+        return jsonify(vacation_schema.dump(new_vacation)), 201  # Возвращаем созданную заявку
+
+    except Exception as e:
+        print("Error:", traceback.format_exc())  # Логирование ошибки
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/vacations', methods=['GET'])
+def get_vacations():
+    vacations = Vacation.query.all()
+    return jsonify(vacations_schema.dump(vacations))  # Возвращаем список всех заявок
+
+@app.route('/vacations/<int:vacation_id>', methods=['GET'])
+def get_vacation(vacation_id):
+    vacation = Vacation.query.get_or_404(vacation_id)
+    return jsonify(vacation_schema.dump(vacation))  # Возвращаем одну заявку
 
 if __name__ == '__main__':
     app.run(debug=True)
