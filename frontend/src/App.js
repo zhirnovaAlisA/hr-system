@@ -7,9 +7,13 @@ import Profile from './Profile';
 import Analytics from './Analytics';
 import './App.css';
 import VacationsList from './VacationsList';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme();
 
 function App() {
   return (
+    <ThemeProvider theme={theme}>
     <Router>
       <div className="app-container">
         <Sidebar />
@@ -25,6 +29,7 @@ function App() {
         </div>
       </div>
     </Router>
+    </ThemeProvider>
   );
 }
 
