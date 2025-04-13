@@ -34,3 +34,8 @@ export const getVacations = async () => {
 export const updateVacation = async (id, data) => {
     await axios.put(`${API_URL}/vacations/${id}`, data); // Отправляем PUT-запрос
 };
+
+export const getDepartments = async () => {
+    const response = await axios.get(`${API_URL}/departments`);
+    return response.data;
+};

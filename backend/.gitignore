@@ -1,0 +1,35 @@
+# Python virtual environments
+venv/
+__pycache__/
+*.pyc
+
+# Flask debug files
+flask_session/
+
+# IDE-specific files (VS Code)
+.vscode/
+*.code-workspace
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Frontend build artifacts
+frontend/build/
+frontend/node_modules/
+yarn.lock
+package-lock.json
+
+# Backend database files
+instance/
+*.db
+*.sqlite3
+
+# Other temporary or generated files
+__init__.py
+*.env
+.env.*

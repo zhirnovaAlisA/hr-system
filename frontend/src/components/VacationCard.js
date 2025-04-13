@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, Typography, Box, Button } from '@mui/material';
-import { updateVacation } from '../utils/api'; // Импортируйте функцию updateVacation
+import { updateVacation } from '../utils/api';
 
 function VacationCard({ vacation, onClose }) {
     const [status, setStatus] = useState(vacation.status);
@@ -10,6 +10,7 @@ function VacationCard({ vacation, onClose }) {
         try {
             await updateVacation(vacation.vacation_id, { status: 'Approved' });
             setStatus('Approved');
+            onClose(); // Закрываем карточку и перезагружаем данные
         } catch (error) {
             console.error('Ошибка при одобрении заявки:', error);
             alert('Произошла ошибка при одобрении заявки.');
@@ -21,6 +22,7 @@ function VacationCard({ vacation, onClose }) {
         try {
             await updateVacation(vacation.vacation_id, { status: 'Rejected' });
             setStatus('Rejected');
+            onClose(); // Закрываем карточку и перезагружаем данные
         } catch (error) {
             console.error('Ошибка при отклонении заявки:', error);
             alert('Произошла ошибка при отклонении заявки.');
@@ -43,7 +45,7 @@ function VacationCard({ vacation, onClose }) {
                 <Typography variant="h6" gutterBottom>
                     Заявка на отпуск
                 </Typography>
-                <Typography>Сотрудник: {vacation.employee ? `${vacation.employee.first_name} ${vacation.employee.last_name}` : 'Не указан'}</Typography>
+                <Typography>Сотрудник: {`${vacation.employee.first_name} ${vacation.employee.last_name}`}</Typography>
                 <Typography>Дата начала: {vacation.start_date}</Typography>
                 <Typography>Дата окончания: {vacation.end_date}</Typography>
                 <Typography>Текущий статус: {status}</Typography>
