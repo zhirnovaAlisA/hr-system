@@ -1,8 +1,33 @@
 import React, { useState } from 'react';
-import { Card, CardContent, Typography, Box, TextField, Button } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  TextField,
+  Button,
+  Tabs,
+  Tab,
+  Grid,
+  styled,
+} from '@mui/material';
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  position: 'fixed',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  zIndex: 9999,
+  width: 600,
+  maxHeight: '80vh',
+  overflowY: 'auto',
+  borderRadius: 16,
+  boxShadow: theme.shadows[10],
+  padding: theme.spacing(2),
+}));
 
 function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [tabIndex, setTabIndex] = useState(0); // Табы: 0 - просмотр, 1 - редактирование
   const [formData, setFormData] = useState({
     first_name: employee.first_name,
     last_name: employee.last_name,
@@ -18,8 +43,8 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
     active: employee.active || 'Yes',
   });
 
-  const handleEdit = () => {
-    setIsEditing(true);
+  const handleTabChange = (_, newValue) => {
+    setTabIndex(newValue);
   };
 
   const handleSave = async () => {
@@ -33,7 +58,7 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
       };
 
       await onUpdate({ ...formattedData, employee_id: employee.employee_id });
-      setIsEditing(false);
+      setTabIndex(0); // Вернуться к режиму просмотра после сохранения
       onClose();
     } catch (error) {
       console.error('Ошибка при обновлении сотрудника:', error);
@@ -41,202 +66,227 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
     }
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    setFormData({
-      first_name: employee.first_name,
-      last_name: employee.last_name,
-      date_of_birth: employee.date_of_birth?.toString().split('T')[0] || '',
-      gender: employee.gender || '',
-      email: employee.email,
-      phone: employee.phone || '',
-      salary: employee.salary || '',
-      inn: employee.inn || '',
-      snils: employee.snils || '',
-      fk_department: employee.fk_department || null,
-      job_name: employee.job_name,
-      active: employee.active || 'Yes',
-    });
-  };
-
   return (
-    <Card
-      sx={{
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 9999,
-        width: 600,
-        maxHeight: '80vh',
-        overflowY: 'auto',
-        p: 2,
-        borderRadius: 1,
-        boxShadow: 2,
-      }}
-    >
-      <CardContent>
-        {isEditing ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <StyledCard>
+      {/* Вкладки */}
+      <Tabs
+        value={tabIndex}
+        onChange={handleTabChange}
+        centered
+        sx={{ mb: 2 }}
+      >
+        <Tab label="Просмотр" />
+        <Tab label="Редактирование" />
+      </Tabs>
+
+      {tabIndex === 0 ? (
+        <CardContent>
+          {/* Два столбца для данных */}
+          <Grid container spacing={2} justifyContent="center" alignItems="flex-start">
+            {/* Левый столбец */}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1">Имя: {employee.first_name}</Typography>
+              <Typography variant="body1">Фамилия: {employee.last_name}</Typography>
+              <Typography variant="body1">
+                Дата рождения: {employee.date_of_birth || 'Не указана'}
+              </Typography>
+              <Typography variant="body1">Пол: {employee.gender || 'Не указан'}</Typography>
+              <Typography variant="body1">Email: {employee.email}</Typography>
+              <Typography variant="body1">Телефон: {employee.phone || 'Не указан'}</Typography>
+            </Grid>
+
+            {/* Правый столбец */}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1">
+                Заработная плата: {employee.salary || 'Не указана'}
+              </Typography>
+              <Typography variant="body1">
+                Отдел: {employee.department?.name || 'Не указан'}
+              </Typography>
+              <Typography variant="body1">
+                Должность: {employee.job_name || 'Не указана'}
+              </Typography>
+              <Typography variant="body1">ИНН: {formData.inn || 'Не указан'}</Typography>
+              <Typography variant="body1">СНИЛС: {formData.snils || 'Не указан'}</Typography>
+              <Typography variant="body1">
+                Активность: {formData.active === 'Yes' ? 'Активен' : 'Неактивен'}
+              </Typography>
+            </Grid>
+          </Grid>
+
+          {/* Кнопки действий */}
+          <Box mt={2} display="flex" justifyContent="center" gap={2}>
+            <Button variant="contained" color="error" onClick={() => onDelete(employee.employee_id)}>
+              Удалить
+            </Button>
+            <Button variant="outlined" onClick={onClose}>
+              Закрыть
+            </Button>
+          </Box>
+        </CardContent>
+      ) : (
+        <CardContent>
+          <Grid container spacing={3} justifyContent="center">
             {/* Общая информация */}
-            <TextField
-              label="Имя"
-              name="first_name"
-              value={formData.first_name}
-              onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-              required
-            />
-            <TextField
-              label="Фамилия"
-              name="last_name"
-              value={formData.last_name}
-              onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-              required
-            />
-            <TextField
-              label="Дата рождения (YYYY-MM-DD)"
-              name="date_of_birth"
-              value={formData.date_of_birth}
-              onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Пол (male/female)"
-              name="gender"
-              value={formData.gender}
-              onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Имя"
+                name="first_name"
+                value={formData.first_name}
+                onChange={(e) =>
+                  setFormData({ ...formData, first_name: e.target.value })
+                }
+                fullWidth
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Фамилия"
+                name="last_name"
+                value={formData.last_name}
+                onChange={(e) =>
+                  setFormData({ ...formData, last_name: e.target.value })
+                }
+                fullWidth
+                required
+              />
+            </Grid>
+
+            {/* Дата рождения и Пол */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Дата рождения (YYYY-MM-DD)"
+                name="date_of_birth"
+                value={formData.date_of_birth}
+                onChange={(e) =>
+                  setFormData({ ...formData, date_of_birth: e.target.value })
+                }
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Пол (male/female)"
+                name="gender"
+                value={formData.gender}
+                onChange={(e) =>
+                  setFormData({ ...formData, gender: e.target.value })
+                }
+                fullWidth
+              />
+            </Grid>
 
             {/* Контакты */}
-            <TextField
-              label="Email"
-              name="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-              required
-            />
-            <TextField
-              label="Телефон"
-              name="phone"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Email"
+                name="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                fullWidth
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Телефон"
+                name="phone"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                fullWidth
+              />
+            </Grid>
 
             {/* Работа */}
-            <TextField
-              label="Заработная плата"
-              name="salary"
-              value={formData.salary}
-              onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="ID Отдела"
-              name="fk_department"
-              value={formData.fk_department || ''}
-              onChange={(e) => 
-                setFormData({ ...formData, fk_department: e.target.value })
-              }
-              fullWidth
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Должность"
-              name="job_name"
-              value={formData.job_name}
-              onChange={(e) => setFormData({ ...formData, job_name: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Заработная плата"
+                name="salary"
+                value={formData.salary}
+                onChange={(e) =>
+                  setFormData({ ...formData, salary: e.target.value })
+                }
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="ID Отдела"
+                name="fk_department"
+                value={formData.fk_department || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, fk_department: e.target.value })
+                }
+                fullWidth
+              />
+            </Grid>
+
+            {/* Должность и Статус */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Должность"
+                name="job_name"
+                value={formData.job_name}
+                onChange={(e) =>
+                  setFormData({ ...formData, job_name: e.target.value })
+                }
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Активность (Yes/No)"
+                name="active"
+                value={formData.active}
+                onChange={(e) =>
+                  setFormData({ ...formData, active: e.target.value })
+                }
+                fullWidth
+              />
+            </Grid>
 
             {/* Документы */}
-            <TextField
-              label="ИНН"
-              name="inn"
-              value={formData.inn}
-              onChange={(e) => setFormData({ ...formData, inn: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="СНИЛС"
-              name="snils"
-              value={formData.snils}
-              onChange={(e) => setFormData({ ...formData, snils: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="ИНН"
+                name="inn"
+                value={formData.inn}
+                onChange={(e) =>
+                  setFormData({ ...formData, inn: e.target.value })
+                }
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="СНИЛС"
+                name="snils"
+                value={formData.snils}
+                onChange={(e) =>
+                  setFormData({ ...formData, snils: e.target.value })
+                }
+                fullWidth
+              />
+            </Grid>
+          </Grid>
 
-            {/* Статус */}
-            <TextField
-              label="Активность (Yes/No)"
-              name="active"
-              value={formData.active}
-              onChange={(e) => setFormData({ ...formData, active: e.target.value })}
-              fullWidth
-              sx={{ mb: 2 }}
-            />
-
-            {/* Кнопки действий */}
-            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button variant="contained" color="primary" onClick={handleSave}>
-                Сохранить
-              </Button>
-              <Button variant="outlined" onClick={handleCancel} sx={{ ml: 2 }}>
-                Отмена
-              </Button>
-              <Button variant="outlined" onClick={onClose} sx={{ ml: 2 }}>
-                Закрыть
-              </Button>
-            </Box>
+          {/* Кнопки действий */}
+          <Box mt={2} display="flex" justifyContent="center" gap={2}>
+            <Button variant="contained" color="primary" onClick={handleSave}>
+              Сохранить
+            </Button>
+            <Button variant="outlined" onClick={onClose}>
+              Закрыть
+            </Button>
           </Box>
-        ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {/* Поля просмотра */}
-            <Typography variant="h6">Имя: {employee.first_name}</Typography>
-            <Typography>Фамилия: {employee.last_name}</Typography>
-            <Typography>Дата рождения: {employee.date_of_birth || 'Не указана'}</Typography>
-            <Typography>Пол: {employee.gender || 'Не указан'}</Typography>
-
-            <Typography>Email: {employee.email}</Typography>
-            <Typography>Телефон: {employee.phone || 'Не указан'}</Typography>
-
-            <Typography>Заработная плата: {employee.salary || 'Не указана'}</Typography>
-            <Typography>Отдел: {employee.department?.name || 'Не указан'}</Typography>
-            <Typography>Должность: {employee.job_name || 'Не указана'}</Typography>
-
-            <Typography>ИНН: {formData.inn || 'Не указан'}</Typography>
-            <Typography>СНИЛС: {formData.snils || 'Не указан'}</Typography>
-            <Typography>Активность: {formData.active === 'Yes' ? 'Активен' : 'Неактивен'}</Typography>
-
-            {/* Кнопки действий */}
-            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button variant="contained" color="error" onClick={() => onDelete(employee.employee_id)}>
-                Удалить
-              </Button>
-              <Button variant="contained" color="secondary" onClick={handleEdit} sx={{ ml: 2 }}>
-                Редактировать
-              </Button>
-              <Button variant="outlined" onClick={onClose} sx={{ ml: 2 }}>
-                Закрыть
-              </Button>
-            </Box>
-          </Box>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      )}
+    </StyledCard>
   );
 }
 
