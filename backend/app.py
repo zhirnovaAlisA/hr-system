@@ -38,6 +38,7 @@ class Employee(db.Model):
     active = db.Column(db.Enum('Yes', 'No'), default='Yes')
 
     department = db.relationship('Department', backref='employees')
+    
 
 # Модель Vacation
 class Vacation(db.Model):
@@ -88,9 +89,16 @@ class DepartmentSchema(SQLAlchemyAutoSchema):
 department_schema = DepartmentSchema()
 departments_schema = DepartmentSchema(many=True)
 
+class WorkHour(db.Model):
+    __tablename__ = 'work_hours'
+    entry_id = db.Column(db.Integer, primary_key=True)
+    fk_employee = db.Column(db.Integer, db.ForeignKey('employees.employee_id'))
+    work_date = db.Column(db.Date)
+    hours_worked = db.Column(db.DECIMAL(4, 2))
+
 # Эндпоинты
 
-# Employees
+# # Employees
 @app.route('/employees', methods=['GET'])
 def get_employees():
     employees = Employee.query.all()
@@ -225,5 +233,66 @@ def get_departments():
     departments = Department.query.all()
     return jsonify(departments_schema.dump(departments))
 
+# Эндпоинты аналитики
+@app.route('/analytics/department-count', methods=['GET'])
+def get_department_count():
+    departments = db.session.query(
+        Department.name,
+        db.func.count(Employee.employee_id).label('count')
+    ).join(
+        Employee, Department.department_id == Employee.fk_department, isouter=True
+    ).group_by(Department.department_id).all()
+
+    return jsonify([{
+        'department': dept.name,
+        'count': dept.count
+    } for dept in departments])
+
+@app.route('/analytics/average-age', methods=['GET'])
+def get_average_age():
+    employees = Employee.query.filter(Employee.date_of_birth != None).all()
+    current_year = datetime.now().year
+    total_age = 0
+    for emp in employees:
+        age = current_year - emp.date_of_birth.year
+        total_age += age
+    average_age = total_age / len(employees) if employees else 0
+    return jsonify({"average_age": round(average_age, 1)})
+
+@app.route('/analytics/churn-rate', methods=['GET'])
+def get_churn_rate():
+    total = Employee.query.count()
+    churned = Employee.query.filter_by(active='No').count()
+    churn = (churned / total) * 100 if total else 0
+    return jsonify({"churn_rate": round(churn, 1)})
+
+@app.route('/analytics/average-tenure', methods=['GET'])
+def get_average_tenure():
+    employees = Employee.query.filter(Employee.employment_date != None).all()
+    current_year = datetime.now().year
+    total_tenure = 0
+    for emp in employees:
+        tenure = current_year - emp.employment_date.year
+        total_tenure += tenure
+    average_tenure = total_tenure / len(employees) if employees else 0
+    return jsonify({"average_tenure": round(average_tenure, 1)})
+# среднее время работы
+@app.route('/analytics/average-hours-per-department', methods=['GET'])
+def get_avg_hours_per_department():
+    avg_hours = db.session.query(
+        Department.name,
+        db.func.avg(WorkHour.hours_worked).label('average_hours')
+    ).join(
+        Employee, Department.department_id == Employee.fk_department
+    ).join(
+        WorkHour, Employee.employee_id == WorkHour.fk_employee
+    ).group_by(Department.department_id).all()
+
+    return jsonify([{
+        'department': dept.name,
+        'average_hours': round(dept.average_hours, 1) if dept.average_hours else 0
+    } for dept in avg_hours])
+
+    
 if __name__ == '__main__':
     app.run(debug=True)

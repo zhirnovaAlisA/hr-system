@@ -39,3 +39,24 @@ export const getDepartments = async () => {
     const response = await axios.get(`${API_URL}/departments`);
     return response.data;
 };
+
+// Добавьте новые функции для аналитики
+export const getEmployeeStats = async () => {
+    const response = await axios.get('http://localhost:5000/analytics/employee-stats');
+    return response.data;
+  };
+  
+  export const getDepartmentPerformance = async () => {
+    const response = await axios.get('http://localhost:5000/analytics/department-performance');
+    return response.data;
+  };
+  
+  export const getEmployeeAgeStats = async () => {
+    const response = await axios.get('http://localhost:5000/analytics/employee-age');
+    return response.data;
+  };
+  
+  export const getChurnRate = async () => {
+    const response = await axios.get('http://localhost:5000/analytics/churn-rate');
+    return response.data;
+  };
