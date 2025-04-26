@@ -33,6 +33,4 @@ function AddEmployee() {
             <AddEmployeeForm onAdd={handleAdd} />
         </Box>
     );
-}
-
-export default AddEmployee;
+}export default AddEmployee;

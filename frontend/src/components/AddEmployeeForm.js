@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Box, Select, MenuItem } from '@mui/material';
-import MaskedInput from 'react-input-mask';
+import {
+  TextField,
+  Button,
+  Box,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from '@mui/material';
+import InputMask from 'react-input-mask'; // Для маски даты
 import { getDepartments } from '../utils/api';
 
 function AddEmployeeForm({ onAdd }) {
@@ -8,7 +16,7 @@ function AddEmployeeForm({ onAdd }) {
     first_name: '',
     last_name: '',
     date_of_birth: '',
-    gender: '', // Пол
+    gender: '', 
     email: '',
     phone: '',
     salary: '',
@@ -19,7 +27,7 @@ function AddEmployeeForm({ onAdd }) {
     active: 'Yes',
   });
 
-  const genders = ['male', 'female'];
+  const genders = ['male', 'female']; 
   const [departments, setDepartments] = useState([]);
 
   useEffect(() => {
@@ -139,38 +147,42 @@ function AddEmployeeForm({ onAdd }) {
         />
 
         {/* Дата рождения */}
-        <MaskedInput
-        className='input-date'
-          label="Дата рождения"
-          name="date_of_birth"
-          placeholder="DD.MM.YYYY"
+        <InputMask
           mask="99.99.9999"
           value={formData.date_of_birth}
-          onChange={(e) => setFormData({
-            ...formData,
-            date_of_birth: e.target.value,
-          })}
-          fullWidth
-          margin="normal"
-          required
-        />
+          onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+        >
+          {() => (
+            <TextField
+              label="Дата рождения"
+              name="date_of_birth"
+              placeholder="DD.MM.YYYY"
+              fullWidth
+              margin="normal"
+              required
+              variant="outlined"
+            />
+          )}
+        </InputMask>
 
         {/* Пол */}
-        <Select
-          label="Пол"
-          name="gender"
-          value={formData.gender}
-          onChange={handleGenderChange}
-          fullWidth
-          margin="normal"
-        >
-          <MenuItem value="">Не указано</MenuItem> {/* Placeholder */}
-          {genders.map((gender) => (
-            <MenuItem key={gender} value={gender}>
-              {gender.charAt(0).toUpperCase() + gender.slice(1)}
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Пол</InputLabel>
+          <Select
+            value={formData.gender}
+            onChange={handleGenderChange}
+            name="gender"
+          >
+            <MenuItem value="">
+              <em>Не указано</em>
             </MenuItem>
-          ))}
-        </Select>
+            {genders.map((gender) => (
+              <MenuItem key={gender} value={gender}>
+                {gender === 'male' ? 'Мужской' : 'Женский'} 
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {/* Телефон */}
         <TextField
@@ -207,21 +219,23 @@ function AddEmployeeForm({ onAdd }) {
         />
 
         {/* Отдел */}
-        <Select
-          label="Отдел"
-          name="fk_department"
-          value={formData.fk_department || ''}
-          onChange={handleDepartmentChange}
-          fullWidth
-          margin="normal"
-        >
-          <MenuItem value="">Не указано</MenuItem> {/* Placeholder */}
-          {departments.map((department) => (
-            <MenuItem key={department.department_id} value={department.department_id}>
-              {department.name}
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Отдел</InputLabel>
+          <Select
+            value={formData.fk_department || ''}
+            onChange={handleDepartmentChange}
+            name="fk_department"
+          >
+            <MenuItem value="">
+              <em>Не указано</em>
             </MenuItem>
-          ))}
-        </Select>
+            {departments.map((department) => (
+              <MenuItem key={department.department_id} value={department.department_id}>
+                {department.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {/* ИНН */}
         <TextField
@@ -267,11 +281,22 @@ function AddEmployeeForm({ onAdd }) {
           margin="normal"
         >
           <MenuItem value="">Не указано</MenuItem>
-          <MenuItem value="Yes">Активен</MenuItem>
-          <MenuItem value="No">Неактивен</MenuItem>
+          <MenuItem value="Yes">Активен</MenuItem> 
+          <MenuItem value="No">Неактивен</MenuItem> 
         </Select>
 
-        <Button type="submit" variant="contained" color="primary">
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          sx={{
+            mt: 2,
+            width: { xs: '100%', md: 250 },
+            maxWidth: '100%', 
+            borderRadius: 3, 
+            marginBottom: 4
+          }}
+        >
           Добавить сотрудника
         </Button>
       </form>
