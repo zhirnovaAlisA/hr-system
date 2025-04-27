@@ -38,9 +38,8 @@ class Employee(db.Model):
     active = db.Column(db.Enum('Yes', 'No'), default='Yes')
 
     department = db.relationship('Department', backref='employees')
-    
-
-# Модель Vacation
+    employee_contracts = db.relationship('Contract', back_populates='employee')    
+    # Модель Vacation
 class Vacation(db.Model):
     __tablename__ = 'vacations'
     vacation_id = db.Column(db.Integer, primary_key=True)
@@ -50,6 +49,18 @@ class Vacation(db.Model):
     status = db.Column(db.Enum('Pending', 'Approved', 'Rejected'), default='Pending')
 
     employee = db.relationship('Employee', backref='vacations')
+
+# Модель Contract
+class Contract(db.Model):
+    __tablename__ = 'contracts'
+    contract_id = db.Column(db.Integer, primary_key=True)
+    fk_employee = db.Column(db.Integer, db.ForeignKey('employees.employee_id'), nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    renewal_notification_date = db.Column(db.Date, default=None)
+
+    # Связь с Employee
+    employee = db.relationship('Employee', back_populates='employee_contracts')
 
 # Схема Employee
 class EmployeeSchema(SQLAlchemyAutoSchema):
@@ -62,6 +73,25 @@ class EmployeeSchema(SQLAlchemyAutoSchema):
 employee_schema = EmployeeSchema()
 employees_schema = EmployeeSchema(many=True)
 
+# Схема для Contract
+class ContractSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Contract
+        load_instance = True
+        include_fk = True
+        include_relationships = True
+
+    # Вычисляемое поле для имени сотрудника
+    employee_name = fields.Method("get_employee_name")
+
+    def get_employee_name(self, obj):
+        if obj.employee:  
+            return f"{obj.employee.first_name} {obj.employee.last_name}"
+        return "Сотрудник удален"
+    
+contracts_schema = ContractSchema(many=True)  
+contract_schema = ContractSchema() 
+
 # Схема Vacation
 class VacationSchema(SQLAlchemyAutoSchema):
     class Meta:
@@ -70,7 +100,7 @@ class VacationSchema(SQLAlchemyAutoSchema):
         sqla_session = db.session
         include_fk = True
 
-    employee = fields.Nested(  # Уберите 'ma.'
+    employee = fields.Nested(  
         'EmployeeSchema',
         only=('first_name', 'last_name', 'email'),
         dump_only=True
@@ -95,6 +125,8 @@ class WorkHour(db.Model):
     fk_employee = db.Column(db.Integer, db.ForeignKey('employees.employee_id'))
     work_date = db.Column(db.Date)
     hours_worked = db.Column(db.DECIMAL(4, 2))
+
+
 
 # Эндпоинты
 
@@ -292,6 +324,55 @@ def get_avg_hours_per_department():
         'department': dept.name,
         'average_hours': round(dept.average_hours, 1) if dept.average_hours else 0
     } for dept in avg_hours])
+
+# Эндпоинты для работы с контрактами
+# Эндпоинт для получения всех контрактов
+@app.route('/contracts', methods=['GET'])
+def get_contracts():
+    contracts = Contract.query.all()
+    return jsonify(contracts_schema.dump(contracts)), 200
+
+# Эндпоинт для получения конкретного контракта по ID
+@app.route('/contracts/<int:contract_id>', methods=['GET'])
+def get_contract(contract_id):
+    contract = Contract.query.get_or_404(contract_id)
+    return jsonify(contract_schema.dump(contract)), 200
+
+# Эндпоинт для создания нового контракта
+@app.route('/contracts', methods=['POST'])
+def add_contract():
+    data = request.get_json()
+    new_contract = Contract(
+        fk_employee=data['fk_employee'],
+        start_date=datetime.strptime(data['start_date'], '%Y-%m-%d').date(),
+        end_date=datetime.strptime(data['end_date'], '%Y-%m-%d').date(),
+        renewal_notification_date=datetime.strptime(data.get('renewal_notification_date', ''), '%Y-%m-%d').date() if data.get('renewal_notification_date') else None
+    )
+    db.session.add(new_contract)
+    db.session.commit()
+    return jsonify(contract_schema.dump(new_contract)), 201
+
+# Эндпоинт для обновления существующего контракта
+@app.route('/contracts/<int:contract_id>', methods=['PUT'])
+def update_contract(contract_id):
+    contract = Contract.query.get_or_404(contract_id)
+    data = request.get_json()
+
+    contract.fk_employee = data.get('fk_employee', contract.fk_employee)
+    contract.start_date = datetime.strptime(data.get('start_date', str(contract.start_date)), '%Y-%m-%d').date()
+    contract.end_date = datetime.strptime(data.get('end_date', str(contract.end_date)), '%Y-%m-%d').date()
+    contract.renewal_notification_date = datetime.strptime(data.get('renewal_notification_date', ''), '%Y-%m-%d').date() if data.get('renewal_notification_date') else None
+
+    db.session.commit()
+    return jsonify(contract_schema.dump(contract)), 200
+
+# Эндпоинт для удаления контракта
+@app.route('/contracts/<int:contract_id>', methods=['DELETE'])
+def delete_contract(contract_id):
+    contract = Contract.query.get_or_404(contract_id)
+    db.session.delete(contract)
+    db.session.commit()
+    return jsonify({"message": "Контракт успешно удален"}), 200
 
     
 if __name__ == '__main__':

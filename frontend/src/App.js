@@ -5,9 +5,11 @@ import EmployeesList from './EmployeesList'; // Для списка сотруд
 import AddEmployee from './AddEmployee'; // Для создания сотрудника
 import Profile from './Profile';
 import Analytics from './Analytics';
+import ContractsList from './ContractsList';
 import './App.css';
 import VacationsList from './VacationsList';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 
 const theme = createTheme();
 
@@ -23,6 +25,7 @@ function App() {
             <Route path="/employees" element={<EmployeesList />} /> {/* Список сотрудников */}
             <Route path="/add-employee" element={<AddEmployee />} /> {/* Создание сотрудника */}
             <Route path="/vacations" element={<VacationsList />} /> {/* Список отпусков */}
+            <Route path="/contracts" element={<ContractsList />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/analytics" element={<Analytics />} />
           </Routes>

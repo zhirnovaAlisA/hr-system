@@ -31,6 +31,11 @@ function Sidebar() {
             <ListItemText primary="Аналитика" />
           </ListItemButton>
         </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton component={Link} to="/contracts">
+            <ListItemText primary="Договоры" />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Drawer>
   );
