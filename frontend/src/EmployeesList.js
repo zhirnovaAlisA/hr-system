@@ -197,63 +197,73 @@ function EmployeesList() {
       </Collapse>
 
       {/* Таблица сотрудников */}
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>
-                <Tooltip title="Сортировать">
-                  <span
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleSort('first_name')}
-                  >
-                    Имя{' '}
-                    {sortField === 'first_name' &&
-                      (sortDirection === 'asc' ? '↑' : '↓')}
-                  </span>
-                </Tooltip>
-              </TableCell>
-              <TableCell align="right">
-                <Tooltip title="Сортировать">
-                  <span
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleSort('last_name')}
-                  >
-                    Фамилия{' '}
-                    {sortField === 'last_name' &&
-                      (sortDirection === 'asc' ? '↑' : '↓')}
-                  </span>
-                </Tooltip>
-              </TableCell>
-              <TableCell align="right">Пол</TableCell>
-              <TableCell align="right">Email</TableCell>
-              <TableCell align="right">Должность</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredEmployees.map((employee) => (
-              <TableRow
-                key={employee.employee_id}
-                onClick={() => handleRowClick(employee)}
-                sx={{
-                  cursor: 'pointer',
-                  '&:hover': { backgroundColor: '#f5f5f5' },
-                  backgroundColor:
-                    selectedEmployee?.employee_id === employee.employee_id
-                      ? '#e0e0e0'
-                      : 'inherit',
-                }}
-              >
-                <TableCell>{employee.first_name}</TableCell>
-                <TableCell align="right">{employee.last_name}</TableCell>
-                <TableCell align="right">{employee.gender}</TableCell>
-                <TableCell align="right">{employee.email}</TableCell>
-                <TableCell align="right">{employee.job_name}</TableCell>
+      <Box
+        sx={{
+          maxHeight: 'calc(100vh - 200px)', // Ограничиваем высоту контейнера
+          overflowY: 'auto', // Добавляем вертикальную прокрутку
+          border: '1px solid #ccc',
+          borderRadius: 4,
+          p: 1,
+        }}
+      >
+        <TableContainer component={Paper}>
+          <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>
+                  <Tooltip title="Сортировать">
+                    <span
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleSort('first_name')}
+                    >
+                      Имя{' '}
+                      {sortField === 'first_name' &&
+                        (sortDirection === 'asc' ? '↑' : '↓')}
+                    </span>
+                  </Tooltip>
+                </TableCell>
+                <TableCell align="right">
+                  <Tooltip title="Сортировать">
+                    <span
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleSort('last_name')}
+                    >
+                      Фамилия{' '}
+                      {sortField === 'last_name' &&
+                        (sortDirection === 'asc' ? '↑' : '↓')}
+                    </span>
+                  </Tooltip>
+                </TableCell>
+                <TableCell align="right">Пол</TableCell>
+                <TableCell align="right">Email</TableCell>
+                <TableCell align="right">Должность</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {filteredEmployees.map((employee) => (
+                <TableRow
+                  key={employee.employee_id}
+                  onClick={() => handleRowClick(employee)}
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    backgroundColor:
+                      selectedEmployee?.employee_id === employee.employee_id
+                        ? '#e0e0e0'
+                        : 'inherit',
+                  }}
+                >
+                  <TableCell>{employee.first_name}</TableCell>
+                  <TableCell align="right">{employee.last_name}</TableCell>
+                  <TableCell align="right">{employee.gender}</TableCell>
+                  <TableCell align="right">{employee.email}</TableCell>
+                  <TableCell align="right">{employee.job_name}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
 
       {/* Карточка выбранного сотрудника */}
       {selectedEmployee && (
