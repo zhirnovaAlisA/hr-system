@@ -57,6 +57,26 @@ function VacationsList() {
     fetchVacations(); // Перезагружаем данные после закрытия карточки
   };
 
+  // Функция перевода статуса на русский язык
+  const translateStatus = (status) => {
+    switch (status) {
+      case 'Pending':
+        return 'Ожидает рассмотрения';
+      case 'Approved':
+        return 'Одобрено';
+      case 'Rejected':
+        return 'Отклонено';
+      default:
+        return status;
+    }
+  };
+
+  // Функция преобразования даты в формат dd.mm.yyyy
+  const formatDate = (date) => {
+    const d = new Date(date);
+    return `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getFullYear()}`;
+  };
+
   return (
     <Box sx={{ position: 'relative', p: 2 }}>
       {/* Модальное окно */}
@@ -67,35 +87,39 @@ function VacationsList() {
       />
 
       {/* Таблица с заявками в ожидании */}
-      <Typography variant="h5" gutterBottom>
-        Заявки на одобрение
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table aria-label="pending vacations table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Сотрудник</TableCell>
-              <TableCell align="right">Дата начала</TableCell>
-              <TableCell align="right">Дата окончания</TableCell>
-              <TableCell align="right">Статус</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {pendingVacations.map((vacation) => (
-              <TableRow
-                key={vacation.vacation_id}
-                onClick={() => handleRowClick(vacation)} // Клик по строке
-                sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
-              >
-                <TableCell>{`${vacation.employee.first_name} ${vacation.employee.last_name}`}</TableCell>
-                <TableCell align="right">{vacation.start_date}</TableCell>
-                <TableCell align="right">{vacation.end_date}</TableCell>
-                <TableCell align="right">{vacation.status}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {pendingVacations.length > 0 && ( // Показываем только если есть ожидающие заявки
+        <>
+          <Typography variant="h5" gutterBottom>
+            Заявки на одобрение
+          </Typography>
+          <TableContainer component={Paper}>
+            <Table aria-label="pending vacations table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Сотрудник</TableCell>
+                  <TableCell align="right">Дата начала</TableCell>
+                  <TableCell align="right">Дата окончания</TableCell>
+                  <TableCell align="right">Статус</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {pendingVacations.map((vacation) => (
+                  <TableRow
+                    key={vacation.vacation_id}
+                    onClick={() => handleRowClick(vacation)} // Клик по строке
+                    sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
+                  >
+                    <TableCell>{`${vacation.employee.first_name} ${vacation.employee.last_name}`}</TableCell>
+                    <TableCell align="right">{formatDate(vacation.start_date)}</TableCell>
+                    <TableCell align="right">{formatDate(vacation.end_date)}</TableCell>
+                    <TableCell align="right">{translateStatus(vacation.status)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      )}
 
       {/* Таблица с обработанными заявками */}
       <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
@@ -115,9 +139,9 @@ function VacationsList() {
             {processedVacations.map((vacation) => (
               <TableRow key={vacation.vacation_id}>
                 <TableCell>{`${vacation.employee.first_name} ${vacation.employee.last_name}`}</TableCell>
-                <TableCell align="right">{vacation.start_date}</TableCell>
-                <TableCell align="right">{vacation.end_date}</TableCell>
-                <TableCell align="right">{vacation.status}</TableCell>
+                <TableCell align="right">{formatDate(vacation.start_date)}</TableCell>
+                <TableCell align="right">{formatDate(vacation.end_date)}</TableCell>
+                <TableCell align="right">{translateStatus(vacation.status)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
