@@ -11,6 +11,7 @@ import {
   Grid,
   styled,
 } from '@mui/material';
+import ModalAlert from './ModalAlert'; // Импортируем модальное окно
 
 const StyledCard = styled(Card)(({ theme }) => ({
   position: 'fixed',
@@ -43,6 +44,9 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
     active: employee.active || 'Yes',
   });
 
+  const [isModalOpen, setIsModalOpen] = useState(false); // Состояние модального окна
+  const [modalText, setModalText] = useState(''); // Текст в модальном окне
+
   const handleTabChange = (_, newValue) => {
     setTabIndex(newValue);
   };
@@ -62,12 +66,33 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
       onClose();
     } catch (error) {
       console.error('Ошибка при обновлении сотрудника:', error);
-      alert('Ошибка при обновлении сотрудника');
+      setModalText('Произошла ошибка при обновлении сотрудника.');
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Вы уверены, что хотите удалить этого сотрудника?')) return;
+
+    try {
+      await onDelete(employee.employee_id);
+      onClose();
+    } catch (error) {
+      console.error('Ошибка при удалении сотрудника:', error);
+      setModalText('Произошла ошибка при удалении сотрудника.');
+      setIsModalOpen(true);
     }
   };
 
   return (
     <StyledCard>
+      {/* Модальное окно */}
+      <ModalAlert 
+        open={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        text={modalText} 
+      />
+
       {/* Вкладки */}
       <Tabs
         value={tabIndex}
@@ -116,7 +141,7 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
 
           {/* Кнопки действий */}
           <Box mt={2} display="flex" justifyContent="center" gap={2}>
-            <Button variant="contained" color="error" onClick={() => onDelete(employee.employee_id)}>
+            <Button variant="contained" color="error" onClick={handleDelete}>
               Удалить
             </Button>
             <Button variant="outlined" onClick={onClose}>

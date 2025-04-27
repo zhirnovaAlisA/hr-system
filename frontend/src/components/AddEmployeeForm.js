@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import InputMask from 'react-input-mask'; // Для маски даты
 import { getDepartments } from '../utils/api';
+import ModalAlert from './ModalAlert'; // Импортируем модальное окно
 
 function AddEmployeeForm({ onAdd }) {
   const [formData, setFormData] = useState({
@@ -29,6 +30,8 @@ function AddEmployeeForm({ onAdd }) {
 
   const genders = ['male', 'female']; 
   const [departments, setDepartments] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Состояние модального окна
+  const [modalText, setModalText] = useState(''); // Текст в модальном окне
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -63,7 +66,8 @@ function AddEmployeeForm({ onAdd }) {
       !formData.email.trim() || 
       !formData.job_name.trim()
     ) {
-      alert('Заполните все обязательные поля!');
+      setModalText('Заполните все обязательные поля!');
+      setIsModalOpen(true);
       return;
     }
 
@@ -74,13 +78,15 @@ function AddEmployeeForm({ onAdd }) {
     };
 
     if (!validateEmail(formData.email)) {
-      alert('Введите корректный email!');
+      setModalText('Введите корректный email!');
+      setIsModalOpen(true);
       return;
     }
 
     // Проверка даты рождения
     if (!formData.date_of_birth) {
-      alert('Укажите дату рождения!');
+      setModalText('Укажите дату рождения!');
+      setIsModalOpen(true);
       return;
     }
 
@@ -115,7 +121,8 @@ function AddEmployeeForm({ onAdd }) {
       });
     } catch (error) {
       console.error('Ошибка:', error);
-      alert('Ошибка при добавлении сотрудника');
+      setModalText('Ошибка при добавлении сотрудника');
+      setIsModalOpen(true);
     }
   };
 
@@ -285,6 +292,7 @@ function AddEmployeeForm({ onAdd }) {
           <MenuItem value="No">Неактивен</MenuItem> 
         </Select>
 
+        {/* Кнопка отправки формы */}
         <Button
           type="submit"
           variant="contained"
@@ -299,6 +307,13 @@ function AddEmployeeForm({ onAdd }) {
         >
           Добавить сотрудника
         </Button>
+
+        {/* Модальное окно */}
+        <ModalAlert 
+          open={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          text={modalText} 
+        />
       </form>
     </Box>
   );
