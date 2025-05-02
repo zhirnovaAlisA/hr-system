@@ -157,3 +157,30 @@
 .employee-row.selected {
   background-color: #e0e0e0;
 }
+
+/* Стили для страницы добавления сотрудника */
+.add-employee-page {
+  width: 100%;
+  /* Удаляем фиксированную высоту и отдельную прокрутку */
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  /* Убираем дополнительный контейнер прокрутки */
+  overflow: visible !important;
+}
+
+.add-employee-form-container {
+  margin-bottom: 16px;
+  width: 100%;
+  /* Убедимся, что нет дополнительной прокрутки */
+  overflow: visible !important;
+}
+
+.add-employee-button {
+  margin-top: 16px !important;
+  width: 250px !important;
+  max-width: 100% !important; 
+  border-radius: 12px !important;
+}

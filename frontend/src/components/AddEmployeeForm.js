@@ -127,7 +127,7 @@ function AddEmployeeForm({ onAdd }) {
   };
 
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box className="add-employee-form-container">
       <form onSubmit={handleSubmit}>
         {/* Имя */}
         <TextField
@@ -297,13 +297,7 @@ function AddEmployeeForm({ onAdd }) {
           type="submit"
           variant="contained"
           color="primary"
-          sx={{
-            mt: 2,
-            width: { xs: '100%', md: 250 },
-            maxWidth: '100%', 
-            borderRadius: 3, 
-            marginBottom: 4
-          }}
+          className="add-employee-button"
         >
           Добавить сотрудника
         </Button>

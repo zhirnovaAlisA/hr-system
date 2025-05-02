@@ -21,17 +21,7 @@ function AddEmployee() {
   };
 
   return (
-    <Box
-      sx={{
-        height: '100vh', // Занимает всю высоту экрана
-        display: 'flex',
-        flexDirection: 'column',
-        overflowY: 'auto', // Добавляем вертикальную прокрутку
-        p: 2, // Внутренние отступы
-        border: '1px solid #ccc', // Опционально: добавляем границу для стиля
-        borderRadius: 2, // Опционально: скругляем углы
-      }}
-    >
+    <Box className="add-employee-page">
       <Typography variant="h4" gutterBottom>
         Добавление сотрудника
       </Typography>
