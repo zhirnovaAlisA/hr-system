@@ -76,7 +76,7 @@ function ContractsList() {
   }, []);
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box className="contracts-list-container">
       {/* Модальное окно для уведомлений */}
       <ModalAlert 
         open={isModalOpen} 
@@ -90,8 +90,8 @@ function ContractsList() {
       </Typography>
 
       {/* Таблица контрактов */}
-      <TableContainer component={Paper}>
-        <Table aria-label="contracts table">
+      <TableContainer component={Paper} className="contracts-table-container">
+        <Table aria-label="contracts table" className="contracts-table">
           <TableHead>
             <TableRow>
               <TableCell>Сотрудник</TableCell>
@@ -106,11 +106,7 @@ function ContractsList() {
               <TableRow
                 key={contract.contract_id}
                 onClick={() => handleRowClick(contract)}
-                sx={{
-                  cursor: 'pointer',
-                  '&:hover': { backgroundColor: '#f5f5f5' },
-                  backgroundColor: selectedContract?.contract_id === contract.contract_id ? '#e0e0e0' : 'inherit',
-                }}
+                className={`contract-row ${selectedContract?.contract_id === contract.contract_id ? 'selected' : ''}`}
               >
                 <TableCell>{contract.employee_name || 'Сотрудник удален'}</TableCell>
                 <TableCell align="right">{formatDate(contract.start_date)}</TableCell>

@@ -7,17 +7,7 @@ function ContractCard({ contract, onClose }) {
   const [modalText, setModalText] = useState(''); // Текст в модальном окне
 
   return (
-    <Card
-      sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 9999,
-        width: 400,
-        p: 2,
-      }}
-    >
+    <Card className="contract-card">
       {/* Модальное окно */}
       <ModalAlert 
         open={isModalOpen} 
@@ -35,7 +25,7 @@ function ContractCard({ contract, onClose }) {
         <Typography>Уведомление о продлении: {contract.renewal_notification_date || 'Не указано'}</Typography>
         <Typography>Статус: {contract.status || 'Не указан'}</Typography>
 
-        <Box sx={{ mt: 2, textAlign: 'right' }}>
+        <Box className="contract-card-actions">
           <Button variant="outlined" onClick={onClose}>
             Закрыть
           </Button>
