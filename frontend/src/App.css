@@ -184,3 +184,68 @@
   max-width: 100% !important; 
   border-radius: 12px !important;
 }
+
+/* Стили для страницы отпусков */
+.vacations-list-container {
+  position: relative;
+  padding: 16px;
+  width: 100%;
+  overflow: visible !important;
+}
+
+.vacations-table-container {
+  margin-bottom: 24px;
+  overflow: visible !important;
+  box-shadow: none !important;
+}
+
+.vacations-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vacations-table thead {
+  position: sticky;
+  top: 0;
+  background-color: #ffffff;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.vacation-row {
+  border-bottom: 1px solid rgba(224, 224, 224, 1);
+}
+
+.vacation-row.clickable {
+  cursor: pointer;
+}
+
+.vacation-row.clickable:hover {
+  background-color: #f5f5f5;
+}
+
+.processed-vacations-title {
+  margin-top: 32px !important;
+}
+
+/* Стили для карточки отпуска */
+.vacation-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  width: 400px;
+  padding: 16px;
+}
+
+.vacation-card-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.vacation-card-close {
+  margin-top: 16px;
+  text-align: right;
+}

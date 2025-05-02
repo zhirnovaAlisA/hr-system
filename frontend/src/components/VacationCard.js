@@ -35,17 +35,7 @@ function VacationCard({ vacation, onClose }) {
   };
 
   return (
-    <Card
-      sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 9999,
-        width: 400,
-        p: 2,
-      }}
-    >
+    <Card className="vacation-card">
       {/* Модальное окно */}
       <ModalAlert 
         open={isModalOpen} 
@@ -62,7 +52,7 @@ function VacationCard({ vacation, onClose }) {
         <Typography>Дата окончания: {vacation.end_date}</Typography>
         <Typography>Текущий статус: {status}</Typography>
 
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+        <Box className="vacation-card-actions">
           <Button variant="contained" color="success" onClick={handleApprove}>
             Одобрить
           </Button>
@@ -71,7 +61,7 @@ function VacationCard({ vacation, onClose }) {
           </Button>
         </Box>
 
-        <Box sx={{ mt: 2, textAlign: 'right' }}>
+        <Box className="vacation-card-close">
           <Button variant="outlined" onClick={onClose}>
             Закрыть
           </Button>

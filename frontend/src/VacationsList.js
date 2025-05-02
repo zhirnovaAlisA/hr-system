@@ -78,7 +78,7 @@ function VacationsList() {
   };
 
   return (
-    <Box sx={{ position: 'relative', p: 2 }}>
+    <Box className="vacations-list-container">
       {/* Модальное окно */}
       <ModalAlert 
         open={isModalOpen} 
@@ -92,8 +92,8 @@ function VacationsList() {
           <Typography variant="h5" gutterBottom>
             Заявки на одобрение
           </Typography>
-          <TableContainer component={Paper}>
-            <Table aria-label="pending vacations table">
+          <TableContainer component={Paper} className="vacations-table-container">
+            <Table aria-label="pending vacations table" className="vacations-table">
               <TableHead>
                 <TableRow>
                   <TableCell>Сотрудник</TableCell>
@@ -107,7 +107,7 @@ function VacationsList() {
                   <TableRow
                     key={vacation.vacation_id}
                     onClick={() => handleRowClick(vacation)} // Клик по строке
-                    sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
+                    className="vacation-row clickable"
                   >
                     <TableCell>{`${vacation.employee.first_name} ${vacation.employee.last_name}`}</TableCell>
                     <TableCell align="right">{formatDate(vacation.start_date)}</TableCell>
@@ -122,11 +122,11 @@ function VacationsList() {
       )}
 
       {/* Таблица с обработанными заявками */}
-      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+      <Typography variant="h5" gutterBottom className="processed-vacations-title">
         Обработанные заявки
       </Typography>
-      <TableContainer component={Paper}>
-        <Table aria-label="processed vacations table">
+      <TableContainer component={Paper} className="vacations-table-container">
+        <Table aria-label="processed vacations table" className="vacations-table">
           <TableHead>
             <TableRow>
               <TableCell>Сотрудник</TableCell>
@@ -137,7 +137,7 @@ function VacationsList() {
           </TableHead>
           <TableBody>
             {processedVacations.map((vacation) => (
-              <TableRow key={vacation.vacation_id}>
+              <TableRow key={vacation.vacation_id} className="vacation-row">
                 <TableCell>{`${vacation.employee.first_name} ${vacation.employee.last_name}`}</TableCell>
                 <TableCell align="right">{formatDate(vacation.start_date)}</TableCell>
                 <TableCell align="right">{formatDate(vacation.end_date)}</TableCell>
