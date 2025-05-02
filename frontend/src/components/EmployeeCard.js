@@ -9,23 +9,8 @@ import {
   Tabs,
   Tab,
   Grid,
-  styled,
 } from '@mui/material';
 import ModalAlert from './ModalAlert'; // Импортируем модальное окно
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  position: 'fixed',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  zIndex: 9999,
-  width: 600,
-  maxHeight: '80vh',
-  overflowY: 'auto',
-  borderRadius: 16,
-  boxShadow: theme.shadows[10],
-  padding: theme.spacing(2),
-}));
 
 function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
   const [tabIndex, setTabIndex] = useState(0); // Табы: 0 - просмотр, 1 - редактирование
@@ -85,7 +70,7 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
   };
 
   return (
-    <StyledCard>
+    <Card className="employee-card">
       {/* Модальное окно */}
       <ModalAlert 
         open={isModalOpen} 
@@ -98,7 +83,7 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
         value={tabIndex}
         onChange={handleTabChange}
         centered
-        sx={{ mb: 2 }}
+        className="employee-card-tabs"
       >
         <Tab label="Просмотр" />
         <Tab label="Редактирование" />
@@ -140,7 +125,7 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
           </Grid>
 
           {/* Кнопки действий */}
-          <Box mt={2} display="flex" justifyContent="center" gap={2}>
+          <Box className="employee-card-actions">
             <Button variant="contained" color="error" onClick={handleDelete}>
               Удалить
             </Button>
@@ -301,7 +286,7 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
           </Grid>
 
           {/* Кнопки действий */}
-          <Box mt={2} display="flex" justifyContent="center" gap={2}>
+          <Box className="employee-card-actions">
             <Button variant="contained" color="primary" onClick={handleSave}>
               Сохранить
             </Button>
@@ -311,7 +296,7 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
           </Box>
         </CardContent>
       )}
-    </StyledCard>
+    </Card>
   );
 }
 

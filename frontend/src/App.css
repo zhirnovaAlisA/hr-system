@@ -1,8 +1,10 @@
+/* Базовые стили для макета */
 .app-container {
   display: grid;
   grid-template-columns: 250px 1fr; /* Боковая панель фиксированной ширины (250px), основное содержимое занимает всё остальное место */
   height: 100vh;
   margin: 0; /* Уберите внешние отступы */
+  overflow: hidden; /* Предотвращает появление двойной прокрутки */
 }
 
 .sidebar {
@@ -13,12 +15,16 @@
   text-align: center;
   border-right: none; /* Уберите правую границу, если она есть */
   box-shadow: none; /* Уберите тень, если она была добавлена ранее */
+  height: 100vh; /* Фиксированная высота */
+  overflow-y: auto; /* Добавляем прокрутку боковой панели при необходимости */
 }
 
 .content {
   padding: 16px; /* Внутренние отступы для основного содержимого */
   background-color: #ffffff; /* Белый фон */
-  overflow: hidden; /* Убедитесь, что нет лишних элементов снаружи */
+  overflow-y: auto; /* Только одна вертикальная прокрутка */
+  overflow-x: hidden; /* Предотвращаем горизонтальную прокрутку */
+  height: 100vh; /* Фиксированная высота */
 }
 
 .input-date{
@@ -28,4 +34,126 @@
   border-color: rgba(215, 201, 201, 0.407);
   /* border-radius: 5%; */
   padding-left: 10px;
+}
+
+/* Стили для EmployeeCard */
+.employee-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+}
+
+.employee-card-tabs {
+  margin-bottom: 16px;
+}
+
+.employee-card-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* Стили для EmployeesList */
+.employees-list-container {
+  position: relative;
+  padding: 0;
+  width: 100%;
+}
+
+.search-container {
+  margin-bottom: 25px; /* Уменьшено расстояние между поиском и таблицей */
+}
+
+.search-field {
+  margin-bottom: 15px !important; /* Уменьшено расстояние между полем поиска и кнопками */
+}
+
+.filter-toggle-btn {
+  margin-top: 10px !important; /* Уменьшен верхний отступ кнопок */
+  margin-bottom: 5px !important; /* Уменьшен нижний отступ кнопок */
+}
+
+.reset-filters-btn {
+  margin-left: 8px !important;
+  margin-top: 10px !important; /* Уменьшен верхний отступ кнопок */
+  margin-bottom: 5px !important; /* Уменьшен нижний отступ кнопок */
+}
+
+.filters-container {
+  margin-bottom: 15px; /* Уменьшено расстояние после блока фильтров */
+}
+
+.gender-filter {
+  margin-bottom: 16px;
+}
+
+.salary-filters {
+  margin-bottom: 16px;
+}
+
+.salary-min {
+  margin-right: 16px;
+}
+
+/* Изменены стили таблицы для отображения на всю страницу */
+.table-container {
+  width: 100%; 
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: visible !important; /* Важно для предотвращения двойной прокрутки */
+}
+
+/* Стили для закрепления шапки таблицы */
+.employees-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.employees-table thead {
+  position: sticky;
+  top: 0;
+  background-color: #ffffff;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Переопределение Material UI стилей - критически важно */
+.MuiTableContainer-root {
+  overflow: visible !important;
+  box-shadow: none !important;
+}
+
+.MuiPaper-root {
+  box-shadow: none !important;
+}
+
+/* Убираем прокрутку у внутреннего Paper контейнера */
+.MuiPaper-root.MuiPaper-elevation {
+  overflow: visible !important;
+}
+
+.sortable-header {
+  cursor: pointer;
+}
+
+.employee-row {
+  cursor: pointer;
+}
+
+.employee-row:hover {
+  background-color: #f5f5f5;
+}
+
+.employee-row.selected {
+  background-color: #e0e0e0;
 }

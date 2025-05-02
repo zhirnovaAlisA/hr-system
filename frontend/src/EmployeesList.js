@@ -131,22 +131,22 @@ function EmployeesList() {
   };
 
   return (
-    <Box sx={{ position: 'relative', p: 2 }}>
+    <Box className="employees-list-container">
       {/* Поле поиска */}
-      <Box mb={2}>
+      <Box className="search-container">
         <TextField
           label="Поиск по сотрудникам"
           variant="outlined"
           fullWidth
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ mb: 2 }}
+          className="search-field"
         />
         {/* Кнопка для показа/скрытия фильтров */}
         <Button
           variant="contained"
           onClick={() => setShowFilters(!showFilters)}
-          sx={{ mt: 2, mb: 1 }}
+          className="filter-toggle-btn"
         >
           {showFilters ? 'Скрыть фильтры' : 'Показать фильтры'}
         </Button>
@@ -155,7 +155,7 @@ function EmployeesList() {
           variant="outlined"
           color="error"
           onClick={handleResetFilters}
-          sx={{ ml: 1, mt: 2, mb: 1 }}
+          className="reset-filters-btn"
         >
           Сбросить фильтры
         </Button>
@@ -163,8 +163,8 @@ function EmployeesList() {
 
       {/* Блок фильтров */}
       <Collapse in={showFilters} timeout="auto" unmountOnExit>
-        <Box mb={2}>
-          <FormControl fullWidth sx={{ mb: 2 }}>
+        <Box className="filters-container">
+          <FormControl fullWidth className="gender-filter">
             <InputLabel id="gender-label">Пол</InputLabel>
             <Select
               labelId="gender-label"
@@ -178,42 +178,35 @@ function EmployeesList() {
               <MenuItem value="female">Женский</MenuItem>
             </Select>
           </FormControl>
-          <FormGroup row sx={{ mb: 2 }}>
+          <FormGroup row className="salary-filters">
             <TextField
               label="Мин. зарплата"
               type="number"
               value={filterSalaryMin}
               onChange={(e) => setFilterSalaryMin(e.target.value)}
-              sx={{ mr: 2 }}
+              className="salary-min"
             />
             <TextField
               label="Макс. зарплата"
               type="number"
               value={filterSalaryMax}
               onChange={(e) => setFilterSalaryMax(e.target.value)}
+              className="salary-max"
             />
           </FormGroup>
         </Box>
       </Collapse>
 
       {/* Таблица сотрудников */}
-      <Box
-        sx={{
-          maxHeight: 'calc(100vh - 200px)', // Ограничиваем высоту контейнера
-          overflowY: 'auto', // Добавляем вертикальную прокрутку
-          border: '1px solid #ccc',
-          borderRadius: 4,
-          p: 1,
-        }}
-      >
+      <Box className="table-container">
         <TableContainer component={Paper}>
-          <Table aria-label="simple table">
+          <Table className="employees-table" aria-label="simple table">
             <TableHead>
               <TableRow>
                 <TableCell>
                   <Tooltip title="Сортировать">
                     <span
-                      style={{ cursor: 'pointer' }}
+                      className="sortable-header"
                       onClick={() => handleSort('first_name')}
                     >
                       Имя{' '}
@@ -225,7 +218,7 @@ function EmployeesList() {
                 <TableCell align="right">
                   <Tooltip title="Сортировать">
                     <span
-                      style={{ cursor: 'pointer' }}
+                      className="sortable-header"
                       onClick={() => handleSort('last_name')}
                     >
                       Фамилия{' '}
@@ -244,14 +237,7 @@ function EmployeesList() {
                 <TableRow
                   key={employee.employee_id}
                   onClick={() => handleRowClick(employee)}
-                  sx={{
-                    cursor: 'pointer',
-                    '&:hover': { backgroundColor: '#f5f5f5' },
-                    backgroundColor:
-                      selectedEmployee?.employee_id === employee.employee_id
-                        ? '#e0e0e0'
-                        : 'inherit',
-                  }}
+                  className={`employee-row ${selectedEmployee?.employee_id === employee.employee_id ? 'selected' : ''}`}
                 >
                   <TableCell>{employee.first_name}</TableCell>
                   <TableCell align="right">{employee.last_name}</TableCell>
