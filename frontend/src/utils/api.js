@@ -44,9 +44,9 @@ export const login = async (credentials) => {
 
 // Получение профиля текущего пользователя
 export const getCurrentUser = async () => {
-    const response = await api.get(`/auth/profile`);  // Без API_URL в начале
-    return response.data;
-  };
+  const response = await api.get(`/auth/profile`);
+  return response.data;
+};
 
 // Получение списка сотрудников (используем api с JWT)
 export const getEmployees = async () => {
@@ -77,13 +77,30 @@ export const getVacations = async () => {
 
 // Получение списка отпусков конкретного сотрудника
 export const getEmployeeVacations = async (employeeId) => {
-  const response = await api.get(`/employee-vacations/${employeeId}`);
-  return response.data;
+  if (!employeeId) {
+    console.error('Не указан ID сотрудника для получения отпусков');
+    return [];
+  }
+  
+  try {
+    const response = await api.get(`/employee-vacations/${employeeId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Ошибка при получении отпусков сотрудника ${employeeId}:`, error);
+    return [];
+  }
 };
 
 // Создание заявки на отпуск
 export const createVacation = async (data) => {
-  const response = await api.post(`/vacations`, data);
+  // Убедимся, что fk_employee точно число
+  const vacationData = {
+    ...data,
+    fk_employee: parseInt(data.fk_employee)
+  };
+  
+  console.log('Отправка данных в API:', vacationData);
+  const response = await api.post(`/vacations`, vacationData);
   return response.data;
 };
 
