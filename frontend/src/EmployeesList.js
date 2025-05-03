@@ -41,6 +41,15 @@ function EmployeesList() {
     setEmployees(data);
   };
 
+  // Функция для перевода пола на русский
+  const translateGender = (gender) => {
+    if (!gender) return 'Не указан';
+    
+    return gender === 'male' ? 'Мужской' : 
+           gender === 'female' ? 'Женский' : 
+           gender;
+  };
+
   // Фильтрация сотрудников
   const filteredEmployees = employees
     .filter((employee) => {
@@ -241,7 +250,7 @@ function EmployeesList() {
                 >
                   <TableCell>{employee.first_name}</TableCell>
                   <TableCell align="right">{employee.last_name}</TableCell>
-                  <TableCell align="right">{employee.gender}</TableCell>
+                  <TableCell align="right">{translateGender(employee.gender)}</TableCell>
                   <TableCell align="right">{employee.email}</TableCell>
                   <TableCell align="right">{employee.job_name}</TableCell>
                 </TableRow>

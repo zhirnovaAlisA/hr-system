@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -11,9 +11,11 @@ import {
   Grid,
 } from '@mui/material';
 import ModalAlert from './ModalAlert'; // Импортируем модальное окно
+import { getDepartments } from '../utils/api'; // Импортируем функцию получения отделов
 
 function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
   const [tabIndex, setTabIndex] = useState(0); // Табы: 0 - просмотр, 1 - редактирование
+  const [departments, setDepartments] = useState([]); // Список отделов
   const [formData, setFormData] = useState({
     first_name: employee.first_name,
     last_name: employee.last_name,
@@ -31,6 +33,28 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
 
   const [isModalOpen, setIsModalOpen] = useState(false); // Состояние модального окна
   const [modalText, setModalText] = useState(''); // Текст в модальном окне
+
+  // Загрузка списка отделов при открытии карточки
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const departmentsData = await getDepartments();
+        setDepartments(departmentsData);
+      } catch (error) {
+        console.error('Ошибка при загрузке отделов:', error);
+      }
+    };
+    
+    fetchDepartments();
+  }, []);
+
+  // Функция получения названия отдела по ID
+  const getDepartmentName = (departmentId) => {
+    if (!departmentId) return 'Не указан';
+    
+    const department = departments.find(dept => dept.department_id === departmentId);
+    return department ? department.name : 'Не указан';
+  };
 
   const handleTabChange = (_, newValue) => {
     setTabIndex(newValue);
@@ -111,7 +135,7 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                 Заработная плата: {employee.salary || 'Не указана'}
               </Typography>
               <Typography variant="body1">
-                Отдел: {employee.department?.name || 'Не указан'}
+                Отдел: {getDepartmentName(employee.fk_department)}
               </Typography>
               <Typography variant="body1">
                 Должность: {employee.job_name || 'Не указана'}
