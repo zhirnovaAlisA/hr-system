@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
@@ -24,9 +25,18 @@ class Employee(db.Model):
     fk_department = db.Column(db.Integer, db.ForeignKey('departments.department_id'), nullable=True)
     job_name = db.Column(db.String(50), nullable=False)
     active = db.Column(db.Enum('Yes', 'No'), default='Yes')
-
+    
+    password_hash = db.Column(db.String(128))
+    role = db.Column(db.Enum('hr', 'employee'), default='employee')
+    
     department = db.relationship('Department', backref='employees')
-    employee_contracts = db.relationship('Contract', back_populates='employee')    
+    employee_contracts = db.relationship('Contract', back_populates='employee')
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)   
 
 # Модель Vacation
 class Vacation(db.Model):

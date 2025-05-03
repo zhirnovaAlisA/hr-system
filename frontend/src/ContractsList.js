@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import ModalAlert from './components/ModalAlert'; // Модальное окно
 import ContractCard from './components/ContractCard';
+import api from './utils/api'; // Импортируем API с авторизацией
 
 function ContractsList() {
   const [contracts, setContracts] = useState([]); // Список контрактов
@@ -30,15 +31,11 @@ function ContractsList() {
   // Получение списка контрактов
   const fetchContracts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/contracts');
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Ошибка при загрузке контрактов.');
-      }
-      setContracts(data);
+      const response = await api.get('/contracts');
+      setContracts(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке контрактов:', error);
-      setModalText(error.message || 'Произошла ошибка при загрузке контрактов.');
+      setModalText(error.response?.data?.error || 'Произошла ошибка при загрузке контрактов.');
       setIsModalOpen(true);
     }
   };
@@ -58,14 +55,11 @@ function ContractsList() {
   const handleDelete = async (contractId) => {
     if (window.confirm('Вы уверены, что хотите удалить этот контракт?')) {
       try {
-        const response = await fetch(`http://localhost:5000/contracts/${contractId}`, { method: 'DELETE' });
-        if (!response.ok) {
-          throw new Error((await response.json()).error || 'Ошибка при удалении контракта.');
-        }
+        await api.delete(`/contracts/${contractId}`);
         await fetchContracts(); // Обновляем список контрактов
       } catch (error) {
         console.error('Ошибка при удалении контракта:', error);
-        setModalText(error.message || 'Произошла ошибка при удалении контракта.');
+        setModalText(error.response?.data?.error || 'Произошла ошибка при удалении контракта.');
         setIsModalOpen(true);
       }
     }

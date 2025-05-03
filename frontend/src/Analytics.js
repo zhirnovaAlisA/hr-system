@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import api from './utils/api'; // Импортируем API с авторизацией
 
 function Analytics() {
   const [departmentCount, setDepartmentCount] = useState([]);
@@ -6,41 +7,41 @@ function Analytics() {
   const [churnRate, setChurnRate] = useState(0);
   const [averageTenure, setAverageTenure] = useState(0);
   const [averageHours, setAverageHours] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Количество сотрудников в отделах
-    fetch('http://localhost:5000/analytics/department-count')
-      .then(response => response.json())
-      .then(data => setDepartmentCount(data))
-      .catch(error => console.error('Ошибка:', error));
+    const fetchData = async () => {
+      try {
+        // Количество сотрудников в отделах
+        const deptCountResponse = await api.get('/analytics/department-count');
+        setDepartmentCount(deptCountResponse.data || []);
 
-    // Средний возраст
-    fetch('http://localhost:5000/analytics/average-age')
-      .then(response => response.json())
-      .then(data => setAverageAge(data.average_age))
-      .catch(error => console.error('Ошибка:', error));
+        // Средний возраст
+        const ageResponse = await api.get('/analytics/average-age');
+        setAverageAge(ageResponse.data.average_age || 0);
 
-    // Текучесть
-    fetch('http://localhost:5000/analytics/churn-rate')
-      .then(response => response.json())
-      .then(data => setChurnRate(data.churn_rate))
-      .catch(error => console.error('Ошибка:', error));
+        // Текучесть
+        const churnResponse = await api.get('/analytics/churn-rate');
+        setChurnRate(churnResponse.data.churn_rate || 0);
 
-    // Средний стаж
-    fetch('http://localhost:5000/analytics/average-tenure')
-      .then(response => response.json())
-      .then(data => setAverageTenure(data.average_tenure))
-      .catch(error => console.error('Ошибка:', error));
+        // Средний стаж
+        const tenureResponse = await api.get('/analytics/average-tenure');
+        setAverageTenure(tenureResponse.data.average_tenure || 0);
 
-    // Среднее время работы по отделам
-    fetch('http://localhost:5000/analytics/average-hours-per-department')
-      .then(response => response.json())
-      .then(data => setAverageHours(data))
-      .catch(error => console.error('Ошибка:', error));
+        // Среднее время работы по отделам
+        const hoursResponse = await api.get('/analytics/average-hours-per-department');
+        setAverageHours(hoursResponse.data || []);
+      } catch (err) {
+        console.error('Ошибка загрузки аналитики:', err);
+        setError('Не удалось загрузить данные аналитики');
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
-    <div 
+    <div
       style={{
         padding: '20px',
         fontFamily: 'Arial, sans-serif',
@@ -50,42 +51,52 @@ function Analytics() {
       }}
     >
       <h1>Аналитика</h1>
-
+      
+      {error && (
+        <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red' }}>
+          {error}
+        </div>
+      )}
+      
       {/* Количество сотрудников в отделах */}
       <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px' }}>
         <h3>Распределение по отделам:</h3>
         <ul>
-          {departmentCount.map(dept => (
-            <li key={dept.department}>
-              {dept.department}: {dept.count} сотрудников
-            </li>
-          ))}
+          {Array.isArray(departmentCount) && departmentCount.length > 0 ? (
+            departmentCount.map(dept => (
+              <li key={dept.department}>
+                {dept.department}: {dept.count} сотрудников
+              </li>
+            ))
+          ) : (
+            <li>Нет данных</li>
+          )}
         </ul>
       </div>
-
+      
       {/* Средний возраст */}
       <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px' }}>
         <h3>Средний возраст сотрудников:</h3>
         <p>{averageAge || 0} лет</p>
       </div>
-
+      
       {/* Текучесть */}
       <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px' }}>
         <h3>Текучесть кадров:</h3>
         <p>{churnRate || 0}% сотрудников уволились</p>
       </div>
-
+      
       {/* Средний стаж */}
       <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px' }}>
         <h3>Средний стаж сотрудников:</h3>
         <p>{averageTenure || 0} лет</p>
       </div>
-
+      
       {/* Среднее время работы */}
       <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px' }}>
         <h3>Среднее время работы по отделам:</h3>
         <ul>
-          {averageHours.length > 0 ? (
+          {Array.isArray(averageHours) && averageHours.length > 0 ? (
             averageHours.map(dept => (
               <li key={dept.department}>
                 {dept.department}: {dept.average_hours} часов/день
