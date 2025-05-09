@@ -8,14 +8,13 @@ import {
   Button,
   Tabs,
   Tab,
-  Grid,
 } from '@mui/material';
-import ModalAlert from './ModalAlert'; // Импортируем модальное окно
-import { getDepartments } from '../utils/api'; // Импортируем функцию получения отделов
+import ModalAlert from './ModalAlert';
+import { getDepartments } from '../utils/api';
 
-function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
-  const [tabIndex, setTabIndex] = useState(0); // Табы: 0 - просмотр, 1 - редактирование
-  const [departments, setDepartments] = useState([]); // Список отделов
+function EmployeeCard({ employee, onClose, onDismiss, onUpdate }) {
+  const [tabIndex, setTabIndex] = useState(0);
+  const [departments, setDepartments] = useState([]);
   const [formData, setFormData] = useState({
     first_name: employee.first_name,
     last_name: employee.last_name,
@@ -31,10 +30,9 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
     active: employee.active || 'Yes',
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // Состояние модального окна
-  const [modalText, setModalText] = useState(''); // Текст в модальном окне
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalText, setModalText] = useState('');
 
-  // Загрузка списка отделов при открытии карточки
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
@@ -48,7 +46,6 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
     fetchDepartments();
   }, []);
 
-  // Функция получения названия отдела по ID
   const getDepartmentName = (departmentId) => {
     if (!departmentId) return 'Не указан';
     
@@ -71,7 +68,7 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
       };
 
       await onUpdate({ ...formattedData, employee_id: employee.employee_id });
-      setTabIndex(0); // Вернуться к режиму просмотра после сохранения
+      setTabIndex(0);
       onClose();
     } catch (error) {
       console.error('Ошибка при обновлении сотрудника:', error);
@@ -80,29 +77,36 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Вы уверены, что хотите удалить этого сотрудника?')) return;
+  const handleDismiss = async () => {
+    const actionText = employee.active === 'Yes' 
+      ? 'уволить' 
+      : 'вернуть на работу';
+    
+    if (!window.confirm(`Вы уверены, что хотите ${actionText} этого сотрудника?`)) return;
 
     try {
-      await onDelete(employee.employee_id);
+      const updatedEmployee = {
+        ...employee,
+        active: employee.active === 'Yes' ? 'No' : 'Yes'
+      };
+      
+      await onDismiss(updatedEmployee);
       onClose();
     } catch (error) {
-      console.error('Ошибка при удалении сотрудника:', error);
-      setModalText('Произошла ошибка при удалении сотрудника.');
+      console.error('Ошибка при изменении статуса сотрудника:', error);
+      setModalText('Произошла ошибка при изменении статуса сотрудника.');
       setIsModalOpen(true);
     }
   };
 
   return (
     <Card className="employee-card">
-      {/* Модальное окно */}
       <ModalAlert 
         open={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         text={modalText} 
       />
 
-      {/* Вкладки */}
       <Tabs
         value={tabIndex}
         onChange={handleTabChange}
@@ -115,10 +119,8 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
 
       {tabIndex === 0 ? (
         <CardContent>
-          {/* Два столбца для данных */}
-          <Grid container spacing={2} justifyContent="center" alignItems="flex-start">
-            {/* Левый столбец */}
-            <Grid item xs={12} sm={6}>
+          <div className="employee-card-view">
+            <div className="employee-card-column">
               <Typography variant="body1">Имя: {employee.first_name}</Typography>
               <Typography variant="body1">Фамилия: {employee.last_name}</Typography>
               <Typography variant="body1">
@@ -127,10 +129,9 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
               <Typography variant="body1">Пол: {employee.gender || 'Не указан'}</Typography>
               <Typography variant="body1">Email: {employee.email}</Typography>
               <Typography variant="body1">Телефон: {employee.phone || 'Не указан'}</Typography>
-            </Grid>
+            </div>
 
-            {/* Правый столбец */}
-            <Grid item xs={12} sm={6}>
+            <div className="employee-card-column">
               <Typography variant="body1">
                 Заработная плата: {employee.salary || 'Не указана'}
               </Typography>
@@ -145,13 +146,17 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
               <Typography variant="body1">
                 Активность: {formData.active === 'Yes' ? 'Активен' : 'Неактивен'}
               </Typography>
-            </Grid>
-          </Grid>
+            </div>
+          </div>
 
-          {/* Кнопки действий */}
           <Box className="employee-card-actions">
-            <Button variant="contained" color="error" onClick={handleDelete}>
-              Удалить
+            <Button 
+              variant="contained" 
+              color={employee.active === 'Yes' ? 'error' : 'success'} 
+              onClick={handleDismiss}
+              className={employee.active === 'Yes' ? 'dismiss-button' : 'rehire-button'}
+            >
+              {employee.active === 'Yes' ? 'Уволить' : 'Восстановить'}
             </Button>
             <Button variant="outlined" onClick={onClose}>
               Закрыть
@@ -160,9 +165,8 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
         </CardContent>
       ) : (
         <CardContent>
-          <Grid container spacing={3} justifyContent="center">
-            {/* Общая информация */}
-            <Grid item xs={12} md={6}>
+          <div className="employee-card-edit-form">
+            <div className="employee-card-edit-row">
               <TextField
                 label="Имя"
                 name="first_name"
@@ -172,9 +176,8 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                 }
                 fullWidth
                 required
+                className="employee-card-field"
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
               <TextField
                 label="Фамилия"
                 name="last_name"
@@ -184,11 +187,11 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                 }
                 fullWidth
                 required
+                className="employee-card-field"
               />
-            </Grid>
+            </div>
 
-            {/* Дата рождения и Пол */}
-            <Grid item xs={12} md={6}>
+            <div className="employee-card-edit-row">
               <TextField
                 label="Дата рождения (YYYY-MM-DD)"
                 name="date_of_birth"
@@ -197,9 +200,8 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                   setFormData({ ...formData, date_of_birth: e.target.value })
                 }
                 fullWidth
+                className="employee-card-field"
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
               <TextField
                 label="Пол (male/female)"
                 name="gender"
@@ -208,11 +210,11 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                   setFormData({ ...formData, gender: e.target.value })
                 }
                 fullWidth
+                className="employee-card-field"
               />
-            </Grid>
+            </div>
 
-            {/* Контакты */}
-            <Grid item xs={12} md={6}>
+            <div className="employee-card-edit-row">
               <TextField
                 label="Email"
                 name="email"
@@ -222,9 +224,8 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                 }
                 fullWidth
                 required
+                className="employee-card-field"
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
               <TextField
                 label="Телефон"
                 name="phone"
@@ -233,11 +234,11 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                   setFormData({ ...formData, phone: e.target.value })
                 }
                 fullWidth
+                className="employee-card-field"
               />
-            </Grid>
+            </div>
 
-            {/* Работа */}
-            <Grid item xs={12} md={6}>
+            <div className="employee-card-edit-row">
               <TextField
                 label="Заработная плата"
                 name="salary"
@@ -246,9 +247,8 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                   setFormData({ ...formData, salary: e.target.value })
                 }
                 fullWidth
+                className="employee-card-field"
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
               <TextField
                 label="ID Отдела"
                 name="fk_department"
@@ -257,11 +257,11 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                   setFormData({ ...formData, fk_department: e.target.value })
                 }
                 fullWidth
+                className="employee-card-field"
               />
-            </Grid>
+            </div>
 
-            {/* Должность и Статус */}
-            <Grid item xs={12} md={6}>
+            <div className="employee-card-edit-row">
               <TextField
                 label="Должность"
                 name="job_name"
@@ -270,9 +270,8 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                   setFormData({ ...formData, job_name: e.target.value })
                 }
                 fullWidth
+                className="employee-card-field"
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
               <TextField
                 label="Активность (Yes/No)"
                 name="active"
@@ -281,11 +280,11 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                   setFormData({ ...formData, active: e.target.value })
                 }
                 fullWidth
+                className="employee-card-field"
               />
-            </Grid>
+            </div>
 
-            {/* Документы */}
-            <Grid item xs={12} md={6}>
+            <div className="employee-card-edit-row">
               <TextField
                 label="ИНН"
                 name="inn"
@@ -294,9 +293,8 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                   setFormData({ ...formData, inn: e.target.value })
                 }
                 fullWidth
+                className="employee-card-field"
               />
-            </Grid>
-            <Grid item xs={12} md={6}>
               <TextField
                 label="СНИЛС"
                 name="snils"
@@ -305,11 +303,11 @@ function EmployeeCard({ employee, onClose, onDelete, onUpdate }) {
                   setFormData({ ...formData, snils: e.target.value })
                 }
                 fullWidth
+                className="employee-card-field"
               />
-            </Grid>
-          </Grid>
+            </div>
+          </div>
 
-          {/* Кнопки действий */}
           <Box className="employee-card-actions">
             <Button variant="contained" color="primary" onClick={handleSave}>
               Сохранить

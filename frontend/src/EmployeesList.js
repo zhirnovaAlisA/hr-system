@@ -17,20 +17,23 @@ import {
   Collapse,
   FormGroup,
   Tooltip,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import EmployeeCard from './components/EmployeeCard';
-import { getEmployees, deleteEmployee, updateEmployee } from './utils/api';
+import { getEmployees, updateEmployee } from './utils/api';
 
 function EmployeesList() {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(''); // Поиск
-  const [filterGender, setFilterGender] = useState(''); // Фильтр по полу
-  const [filterSalaryMin, setFilterSalaryMin] = useState(''); // Минимальная зарплата
-  const [filterSalaryMax, setFilterSalaryMax] = useState(''); // Максимальная зарплата
-  const [showFilters, setShowFilters] = useState(false); // Состояние для показа/скрытия фильтров
-  const [sortField, setSortField] = useState(null); // Поле сортировки
-  const [sortDirection, setSortDirection] = useState('asc'); // Направление сортировки
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterGender, setFilterGender] = useState('');
+  const [filterSalaryMin, setFilterSalaryMin] = useState('');
+  const [filterSalaryMax, setFilterSalaryMax] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc');
+  const [showInactive, setShowInactive] = useState(false);
 
   useEffect(() => {
     fetchEmployees();
@@ -41,18 +44,22 @@ function EmployeesList() {
     setEmployees(data);
   };
 
-  // Функция для перевода пола на русский
   const translateGender = (gender) => {
     if (!gender) return 'Не указан';
-    
     return gender === 'male' ? 'Мужской' : 
            gender === 'female' ? 'Женский' : 
            gender;
   };
 
-  // Фильтрация сотрудников
+  // Фильтрация сотрудников с учетом активности
   const filteredEmployees = employees
     .filter((employee) => {
+      // Фильтр по активности
+      const isActive = employee.active === 'Yes';
+      if (!showInactive && !isActive) {
+        return false;
+      }
+
       // Поиск по строковому запросу
       const matchesSearch =
         Object.values(employee).some(
@@ -75,7 +82,7 @@ function EmployeesList() {
     })
     .slice() // Копия массива для сортировки
     .sort((a, b) => {
-      if (!sortField) return 0; // Если нет поля сортировки, не сортируем
+      if (!sortField) return 0;
 
       const valueA = a[sortField];
       const valueB = b[sortField];
@@ -93,12 +100,12 @@ function EmployeesList() {
     setSelectedEmployee(employee);
   };
 
-  const handleDelete = async (id) => {
-    if (
-      window.confirm('Вы уверены, что хотите удалить этого сотрудника?')
-    ) {
-      await deleteEmployee(id);
+  const handleDismissEmployee = async (updatedEmployee) => {
+    try {
+      await updateEmployee(updatedEmployee.employee_id, updatedEmployee);
       fetchEmployees();
+    } catch (error) {
+      console.error('Ошибка при обновлении сотрудника:', error);
     }
   };
 
@@ -116,32 +123,28 @@ function EmployeesList() {
     }
   };
 
-  // Обработчик сортировки
   const handleSort = (field) => {
     if (sortField === field) {
-      // Переключаем направление сортировки
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // Устанавливаем новое поле сортировки и направление "asc"
       setSortField(field);
       setSortDirection('asc');
     }
   };
 
-  // Функция для сброса всех фильтров
   const handleResetFilters = () => {
     setSearchQuery('');
     setFilterGender('');
     setFilterSalaryMin('');
     setFilterSalaryMax('');
-    setSortField(null); // Сбрасываем сортировку
-    setSortDirection('asc'); // Возвращаем направление к "asc"
-    setShowFilters(false); // Скрываем блок фильтров после сброса
+    setSortField(null);
+    setSortDirection('asc');
+    setShowFilters(false);
+    setShowInactive(false);
   };
 
   return (
     <Box className="employees-list-container">
-      {/* Поле поиска */}
       <Box className="search-container">
         <TextField
           label="Поиск по сотрудникам"
@@ -151,7 +154,6 @@ function EmployeesList() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="search-field"
         />
-        {/* Кнопка для показа/скрытия фильтров */}
         <Button
           variant="contained"
           onClick={() => setShowFilters(!showFilters)}
@@ -159,7 +161,6 @@ function EmployeesList() {
         >
           {showFilters ? 'Скрыть фильтры' : 'Показать фильтры'}
         </Button>
-        {/* Кнопка сброса фильтров */}
         <Button
           variant="outlined"
           color="error"
@@ -168,9 +169,20 @@ function EmployeesList() {
         >
           Сбросить фильтры
         </Button>
+        
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={showInactive}
+              onChange={(e) => setShowInactive(e.target.checked)}
+              color="primary"
+            />
+          }
+          label="Показывать неактивных сотрудников"
+          className="inactive-checkbox"
+        />
       </Box>
 
-      {/* Блок фильтров */}
       <Collapse in={showFilters} timeout="auto" unmountOnExit>
         <Box className="filters-container">
           <FormControl fullWidth className="gender-filter">
@@ -206,7 +218,6 @@ function EmployeesList() {
         </Box>
       </Collapse>
 
-      {/* Таблица сотрудников */}
       <Box className="table-container">
         <TableContainer component={Paper}>
           <Table className="employees-table" aria-label="simple table">
@@ -239,6 +250,7 @@ function EmployeesList() {
                 <TableCell align="right">Пол</TableCell>
                 <TableCell align="right">Email</TableCell>
                 <TableCell align="right">Должность</TableCell>
+                <TableCell align="right">Статус</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -246,13 +258,16 @@ function EmployeesList() {
                 <TableRow
                   key={employee.employee_id}
                   onClick={() => handleRowClick(employee)}
-                  className={`employee-row ${selectedEmployee?.employee_id === employee.employee_id ? 'selected' : ''}`}
+                  className={`employee-row ${
+                    selectedEmployee?.employee_id === employee.employee_id ? 'selected' : ''
+                  } ${employee.active === 'No' ? 'inactive-employee' : ''}`}
                 >
                   <TableCell>{employee.first_name}</TableCell>
                   <TableCell align="right">{employee.last_name}</TableCell>
                   <TableCell align="right">{translateGender(employee.gender)}</TableCell>
                   <TableCell align="right">{employee.email}</TableCell>
                   <TableCell align="right">{employee.job_name}</TableCell>
+                  <TableCell align="right">{employee.active === 'Yes' ? 'Активен' : 'Неактивен'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -260,12 +275,11 @@ function EmployeesList() {
         </TableContainer>
       </Box>
 
-      {/* Карточка выбранного сотрудника */}
       {selectedEmployee && (
         <EmployeeCard
           employee={selectedEmployee}
           onClose={handleCloseCard}
-          onDelete={handleDelete}
+          onDismiss={handleDismissEmployee}
           onUpdate={handleUpdateEmployee}
         />
       )}
