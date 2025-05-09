@@ -247,7 +247,7 @@ def update_vacation(vacation_id):
 
 # Departments
 @app.route('/departments', methods=['GET'])
-@role_required('hr')  # Только HR нужен полный список отделов
+@role_required('any')  # Список отделов доступен всем
 def get_departments():
     try:
         departments = Department.query.all()
