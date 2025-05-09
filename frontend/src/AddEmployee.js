@@ -1,22 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AddEmployeeForm from './components/AddEmployeeForm';
-import ModalAlert from './components/ModalAlert'; // Импортируем модальное окно
+import ModalAlert from './components/ModalAlert';
 import { Box, Typography } from '@mui/material';
 import { addEmployee } from './utils/api';
+import { useNavigate } from 'react-router-dom';
 
 function AddEmployee() {
-  const [isModalOpen, setIsModalOpen] = React.useState(false); // Состояние модального окна
-  const [modalText, setModalText] = React.useState(''); // Текст в модальном окне
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalText, setModalText] = useState('');
+  const navigate = useNavigate();
 
   const handleAdd = async (newEmployee) => {
     try {
-      await addEmployee(newEmployee); // Отправляем данные на сервер
+      await addEmployee(newEmployee);
       setModalText('Сотрудник успешно добавлен!');
-      setIsModalOpen(true); // Открываем модальное окно при успехе
+      setIsModalOpen(true);
+      
+      setTimeout(() => {
+        navigate('/employees');
+      }, 1500);
     } catch (error) {
       console.error('Error adding employee:', error);
       setModalText('Произошла ошибка при добавлении сотрудника.');
-      setIsModalOpen(true); // Открываем модальное окно при ошибке
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    if (modalText === 'Сотрудник успешно добавлен!') {
+      navigate('/employees');
     }
   };
 
@@ -25,13 +38,10 @@ function AddEmployee() {
       <Typography variant="h4" gutterBottom>
         Добавление сотрудника
       </Typography>
-      {/* Форма добавления сотрудника */}
       <AddEmployeeForm onAdd={handleAdd} />
-
-      {/* Модальное окно */}
       <ModalAlert 
         open={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        onClose={handleModalClose}
         text={modalText} 
       />
     </Box>
