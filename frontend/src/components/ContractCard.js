@@ -4,7 +4,7 @@ import ModalAlert from './ModalAlert'; // Модальное окно
 
 function ContractCard({ contract, onClose }) {
   const [isModalOpen, setIsModalOpen] = useState(false); // Состояние модального окна
-  const [modalText, setModalText] = useState(''); // Текст в модальном окне
+  const [modalText, setModalText] = useState(''); 
 
   return (
     <Card className="contract-card">

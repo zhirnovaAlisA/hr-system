@@ -280,6 +280,17 @@
   overflow: visible !important;
 }
 
+.contracts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.add-contract-button {
+  white-space: nowrap;
+}
+
 .contracts-table-container {
   margin-bottom: 24px;
   overflow: visible !important;
@@ -312,6 +323,41 @@
   background-color: #e0e0e0;
 }
 
+/* Стили для отображения статуса контракта */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-pending {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.status-expired {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+.status-terminated {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.status-unknown {
+  background-color: #e0e0e0;
+  color: #757575;
+}
+
 /* Стили для карточки договора */
 .contract-card {
   position: absolute;
@@ -319,13 +365,86 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 9999;
-  width: 400px;
+  width: 600px;
+  max-width: 90vw;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+.contract-card-tabs {
+  margin-bottom: 16px;
+}
+
+.contract-card-content {
   padding: 16px;
 }
 
+.contract-card-title {
+  margin-bottom: 16px;
+}
+
+.contract-card-grid {
+  margin-bottom: 16px;
+}
+
+.contract-card-grid-item {
+  padding: 8px;
+}
+
 .contract-card-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Стили для формы создания контракта */
+.contract-form-dialog {
+  padding: 0;
+}
+
+.contract-form-title {
+  padding: 16px 24px;
+  background-color: #f5f5f5;
+}
+
+.contract-form-content {
+  padding: 0 24px 16px 24px;
+}
+
+.contract-form-grid {
   margin-top: 16px;
-  text-align: right;
+}
+
+.contract-form-grid-item {
+  padding: 8px;
+}
+
+.contract-form-field {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.contract-form-checkbox {
+  margin-top: 8px;
+}
+
+.contract-form-error {
+  color: #f44336;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  margin-left: 14px;
+}
+
+.contract-form-actions {
+  padding: 8px 24px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 /* Profile.css */
@@ -435,8 +554,59 @@
   min-width: 200px;
 }
 
+/* Стили для выпадающего списка MUI */
+.MuiMenuItem-root {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.MuiSelect-select {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Стили для контейнера выпадающего списка */
+.MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
+  max-height: 300px !important;
+  overflow-y: auto !important;
+}
+
+/* Стили для элементов формы контракта */
+.contract-form-select {
+  min-width: 300px !important;
+  width: 100%;
+}
+
+.contract-form-field .MuiInputBase-root {
+  width: 100%;
+}
+
+/* Адаптивные стили */
 @media (max-width: 600px) {
   .employee-card-edit-row {
     flex-direction: column;
+  }
+  
+  .contract-card {
+    width: 95vw;
+    top: 50%;
+    max-height: 90vh;
+  }
+  
+  .contract-card-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .contracts-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .add-contract-button {
+    margin-top: 8px;
+    width: 100%;
   }
 }
