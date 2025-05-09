@@ -71,6 +71,9 @@
 
 .search-container {
   margin-bottom: 25px; /* Уменьшено расстояние между поиском и таблицей */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .search-field {
@@ -86,6 +89,11 @@
   margin-left: 8px !important;
   margin-top: 10px !important; /* Уменьшен верхний отступ кнопок */
   margin-bottom: 5px !important; /* Уменьшен нижний отступ кнопок */
+}
+
+.inactive-checkbox {
+  margin-left: 16px !important;
+  margin-top: 10px !important;
 }
 
 .filters-container {
@@ -156,6 +164,20 @@
 
 .employee-row.selected {
   background-color: #e0e0e0;
+}
+
+/* Стили для неактивных сотрудников */
+.inactive-employee {
+  background-color: #f5f5f5;
+  color: #757575;
+}
+
+.inactive-employee:hover {
+  background-color: #e0e0e0 !important;
+}
+
+.inactive-employee td {
+  color: #757575;
 }
 
 /* Стили для страницы добавления сотрудника */
@@ -371,4 +393,50 @@
 
 .profile-section {
   margin-bottom: 32px;
+}
+
+/* Кнопки действий */
+.dismiss-button {
+  margin-right: 8px !important;
+}
+
+.rehire-button {
+  margin-right: 8px !important;
+}
+
+/* Дополнительные стили для карточки сотрудника */
+.employee-card-view {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.employee-card-column {
+  flex: 1;
+  min-width: 250px;
+}
+
+.employee-card-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.employee-card-edit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.employee-card-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+@media (max-width: 600px) {
+  .employee-card-edit-row {
+    flex-direction: column;
+  }
 }
